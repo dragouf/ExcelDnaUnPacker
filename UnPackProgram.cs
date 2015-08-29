@@ -106,8 +106,12 @@ The Excel-Dna integration assembly (ExcelDna.Integration.dll) is searched for
                 }
             }
 
+            // Look inside an XLL with PEView. Each dll is packed in SECTION .rsrc as ASSEMBLY_LZMA <name> where name is the
+            // DLL name without .dll suffix
+            string lzmaName = dllOutputPath.Substring( 0, dllOutputPath.Length - 4);
+            Console.WriteLine( "Unpacking " + lzmaName );
             var hModule = ResourceHelper.LoadLibraryEx(xllPath, IntPtr.Zero, LoadLibraryFlags.LOAD_LIBRARY_AS_DATAFILE | LoadLibraryFlags.LOAD_LIBRARY_AS_IMAGE_RESOURCE);
-            var content = ResourceHelper.LoadResourceBytes(hModule, "ASSEMBLY_LZMA", "SEOTOOLS");
+            var content = ResourceHelper.LoadResourceBytes( hModule, "ASSEMBLY_LZMA", lzmaName);
 
             if (null != content)
             {
@@ -116,11 +120,6 @@ The Excel-Dna integration assembly (ExcelDna.Integration.dll) is searched for
                     binWriter.Write(content);
                 }
             }
-
-#if DEBUG
-			Console.WriteLine("Press any key to exit.");
-			Console.ReadKey();
-#endif
 		}
 	}
 
